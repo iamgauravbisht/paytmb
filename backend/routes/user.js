@@ -4,6 +4,7 @@ const zod = require("zod");
 const { User } = require("../db");
 const { JWT_SECRET } = require("../config");
 const { authMiddleware } = require("../authmiddleware");
+const { Account } = require("../db");
 
 const userRouter = express.Router();
 
@@ -31,6 +32,12 @@ userRouter.post("/signup", async (req, res) => {
 
   //make db call and creata a user
   const newUser = await User.create(req.body);
+  //setup account for the user
+  const newAccount = await Account.create({
+    userId: newUser._id,
+    balance: 1 + Math.random() * 1000,
+  });
+
   //take data and make its jwt token
   const token = jwt.sign({ userId: newUser._id }, JWT_SECRET, {
     expiresIn: "24h",
